@@ -49,6 +49,7 @@ def build_transformation_catalog(tc_target, wf):
     '''
 
     tc = TransformationCatalog()
+    trans = {}
 
     exes = {}
     full_path = which('mProject')
@@ -68,9 +69,6 @@ def build_transformation_catalog(tc_target, wf):
         transformation = None
         if fname[0] == '.':
             continue
-        if fname == 'mDiffFit':
-            # special compound transformation - see below
-            continue
 
         if tc_target == 'regular':
             transformation = Transformation(fname, 
@@ -85,22 +83,20 @@ def build_transformation_catalog(tc_target, wf):
                                             container=container,
                                             is_stageable=False)
 
+        # some transformations can be clustered for effiency
         if fname in ['gmProject', 'mDiff', 'mDiffFit', 'mBackground']:
             transformation.add_profiles(Namespace.PEGASUS, 'clusters.size', '3')
+
+        # keep a handle to added ones, for use later
+        trans[fname] = transformation
             
         tc.add_transformations(transformation)
 
-    wf.add_transformation_catalog(tc)
-
     # some Montage tools depend on other tools
-    # FIXME
-    #for tname in ['mDiffFit']:
-    #    t = Transformation(tname)
-    #    if tname == 'mDiffFit':
-    #        t.uses(Executable('mDiff'))
-    #        t.uses(Executable('mFitplane'))
-    #    t.uses(Executable('mDiffFit'))
-    #    wf.addTransformation(t)
+    trans['mDiffFit'].add_requirement(trans['mDiff'])
+    trans['mDiffFit'].add_requirement(trans['mFitplane'])
+
+    wf.add_transformation_catalog(tc)
 
 
 def generate_region_hdr(wf, rc, center, degrees):
@@ -406,7 +402,7 @@ def main():
 
     # write out the workflow and catalogs
     wf.add_replica_catalog(rc)
-    wf.write('data/montage-workflow.yaml')
+    wf.write('data/montage-workflow.yml')
 
 
 if __name__ == '__main__':

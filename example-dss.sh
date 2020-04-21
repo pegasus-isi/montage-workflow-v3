@@ -20,7 +20,7 @@ rm -rf data
 
 pegasus-plan \
         --dir work \
-        --dax data/montage-workflow.yaml \
+        --dax data/montage-workflow.yml \
         --output-site local \
         --cluster horizontal
 

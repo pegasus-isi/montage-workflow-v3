@@ -27,6 +27,6 @@ perl -p -i -e "s;/srv/data;$PWD/data;g" data/rc.txt
 
 pegasus-plan \
         --dir work \
-        --dax data/montage-workflow.yaml \
+        --dax data/montage-workflow.yml \
         --output-site local \
         --cluster horizontal 
