@@ -43,6 +43,14 @@ def which(file):
     return None
 
 
+def repl_base_dir():
+    '''
+    In general, this is os.getcwd(), but for containers we might have to
+    override the replica base dir 
+    '''
+    pass
+
+
 def build_transformation_catalog(tc_target, wf):
     '''
     Some transformations in Montage uses multiple executables
@@ -61,9 +69,9 @@ def build_transformation_catalog(tc_target, wf):
     if tc_target == 'container':
         container = Container('montage',
             Container.SINGULARITY,
-            'shub://pegasus-isi/montage-workflow-v2'
+            'library://rynge/default/montage:latest'
             ).add_env(MONTAGE_HOME='/opt/Montage')
-        wf.add_containers(container)
+        tc.add_containers(container)
 
     for fname in os.listdir(base_dir):
         transformation = None

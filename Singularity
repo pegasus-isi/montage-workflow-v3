@@ -36,12 +36,19 @@ yum -y install \
     osg-ca-certs \
     osg-wn-client \
     pegasus \
+    python36-pika \
+    python36-PyYAML \
     python3-astropy \
     python3-devel \
     python3-future \
     python3-pip \
     unzip \
     wget
+
+pip3 install astropy
+
+# pegasus 5.0
+rpm -Uvh https://download.pegasus.isi.edu/pegasus/5.0.0dev/pegasus-5.0.0dev-1.el7.x86_64.rpm
 
 # Cleaning caches to reduce size of image
 yum clean all

@@ -11,10 +11,10 @@ fi
 rm -rf data
 
 singularity exec \
-            --bind $PWD:/srv \
-            shub://pegasus-isi/montage-workflow-v2 \
-            /srv/montage-workflow.py \
-                --work-dir /srv \
+            --bind $PWD \
+            library://rynge/default/montage:latest \
+            $PWD/montage-workflow.py \
+                --work-dir $PWD \
                 --tc-target container \
                 --center "56.7 24.00" \
                 --degrees 1.0 \
