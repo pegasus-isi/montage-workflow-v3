@@ -83,6 +83,7 @@ def build_transformation_catalog(tc_target, wf):
                                             site='condor-pool', 
                                             pfn=os.path.join(base_dir, fname), 
                                             is_stageable=True)
+            transformation.add_env(PATH='/usr/bin:/bin:.')
         else:
             # container
             transformation = Transformation(fname,
@@ -319,35 +320,35 @@ def add_band(wf, rc, band_id, center, degrees, survey, band, color):
         j.add_inputs(corrected_fits, corrected_area)
     wf.add_jobs(j)
 
-    # mJPEG - Make the JPEG for this channel
-    j = Job('mJPEG')
-    mosaic_jpg = File('%s-mosaic.jpg' %(band_id))
+    # mViewer - Make the JPEG for this channel
+    j = Job('mViewer')
+    mosaic_png = File('%s-mosaic.png' %(band_id))
     j.add_inputs(mosaic_fits)
-    j.add_outputs(mosaic_jpg, stage_out=True)
-    j.add_args('-ct', '0', '-gray', mosaic_fits, '0s', '99.999%', 'gaussian', \
-               '-out', mosaic_jpg)
+    j.add_outputs(mosaic_png, stage_out=True)
+    j.add_args('-ct', '1', '-gray', mosaic_fits, '-1s', 'max', 'gaussian', \
+               '-png', mosaic_png)
     wf.add_jobs(j)
 
 
-def color_jpg(wf, rc, red_id, green_id, blue_id):
+def color_png(wf, rc, red_id, green_id, blue_id):
 
     red_id = str(red_id)
     green_id = str(green_id)
     blue_id = str(blue_id)
 
     # mJPEG - Make the JPEG for this channel
-    j = Job('mJPEG')
-    mosaic_jpg = File('mosaic-color.jpg')
+    j = Job('mViewer')
+    mosaic_png = File('mosaic-color.png')
     red_fits = File('%s-mosaic.fits' %(red_id))
     green_fits = File('%s-mosaic.fits' %(green_id))
     blue_fits = File('%s-mosaic.fits' %(blue_id))
     j.add_inputs(red_fits, green_fits, blue_fits)
-    j.add_outputs(mosaic_jpg, stage_out=True)
+    j.add_outputs(mosaic_png, stage_out=True)
     j.add_args( \
-            '-red', red_fits, '-1s', '99.999%', 'gaussian-log', \
-            '-green', green_fits, '-1s', '99.999%', 'gaussian-log', \
-            '-blue', blue_fits, '-1s', '99.999%', 'gaussian-log', \
-            '-out', mosaic_jpg)
+            '-red', red_fits, '-0.5s', 'max', 'gaussian-log', \
+            '-green', green_fits, '-0.5s', 'max', 'gaussian-log', \
+            '-blue', blue_fits, '-0.5s', 'max', 'gaussian-log', \
+            '-png', mosaic_png)
     wf.add_jobs(j)
 
 
@@ -406,7 +407,7 @@ def main():
 
     # if we have 3 bands in red, blue, green, try to create a color jpeg
     if 'red' in color_band and 'green' in color_band and 'blue' in color_band:
-        color_jpg(wf, rc, color_band['red'], color_band['green'], color_band['blue'])
+        color_png(wf, rc, color_band['red'], color_band['green'], color_band['blue'])
 
     # write out the workflow and catalogs
     wf.add_replica_catalog(rc)

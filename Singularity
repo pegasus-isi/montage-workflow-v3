@@ -25,7 +25,6 @@ yum -y install http://repo.opensciencegrid.org/osg/3.5/osg-3.5-el7-release-lates
 echo -e "# Pegasus\n[Pegasus]\nname=Pegasus\nbaseurl=http://download.pegasus.isi.edu/wms/download/rhel/7/\$basearch/\ngpgcheck=0\nenabled=1\npriority=50" >/etc/yum.repos.d/pegasus.repo
 
 yum -y install \
-    astropy-tools \
     file \
     gcc \
     gcc-gfortran \
@@ -38,13 +37,13 @@ yum -y install \
     pegasus \
     python36-pika \
     python36-PyYAML \
-    python3-astropy \
     python3-devel \
     python3-future \
     python3-pip \
     unzip \
     wget
 
+# want astropy in the python3 install as that is what we use for Pegasus API
 pip3 install astropy
 
 # pegasus 5.0
