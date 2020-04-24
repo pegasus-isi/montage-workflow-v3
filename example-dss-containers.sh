@@ -22,9 +22,6 @@ singularity exec \
                 --band dss:DSS2R:green \
                 --band dss:DSS2IR:red
 
-# rc needs to have paths "outside" the image
-perl -p -i -e "s;/srv/data;$PWD/data;g" data/rc.txt
-
 pegasus-plan \
         --dir work \
         --dax data/montage-workflow.yml \
