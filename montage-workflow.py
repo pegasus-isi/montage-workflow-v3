@@ -80,14 +80,14 @@ def build_transformation_catalog(tc_target, wf):
 
         if tc_target == 'regular':
             transformation = Transformation(fname, 
-                                            site='condor-pool', 
+                                            site='condorpool', 
                                             pfn=os.path.join(base_dir, fname), 
                                             is_stageable=True)
             transformation.add_env(PATH='/usr/bin:/bin:.')
         else:
             # container
             transformation = Transformation(fname,
-                                            site='condor-pool',
+                                            site='insidecontainer',
                                             pfn=os.path.join(base_dir, fname),
                                             container=container,
                                             is_stageable=False)
