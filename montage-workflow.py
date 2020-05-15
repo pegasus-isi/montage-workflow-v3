@@ -92,6 +92,9 @@ def build_transformation_catalog(tc_target, wf):
                                             container=container,
                                             is_stageable=False)
 
+        # memory requirement
+        transformation.add_profiles(Namespace.CONDOR, 'request_memory', '1 GB')
+
         # some transformations can be clustered for effiency
         if fname in ['gmProject', 'mDiff', 'mDiffFit', 'mBackground']:
             transformation.add_profiles(Namespace.PEGASUS, 'clusters.size', '3')
