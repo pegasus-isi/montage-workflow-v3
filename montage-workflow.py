@@ -80,7 +80,7 @@ def build_transformation_catalog(tc_target, wf):
 
         if tc_target == 'regular':
             transformation = Transformation(fname, 
-                                            site='condorpool', 
+                                            site='local',
                                             pfn=os.path.join(base_dir, fname), 
                                             is_stageable=True)
             transformation.add_env(PATH='/usr/bin:/bin:.')
