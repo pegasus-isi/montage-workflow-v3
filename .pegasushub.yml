@@ -1,0 +1,8 @@
+pegasus:
+  version: 
+    min: 5.0.0
+    max: 5.0.0
+  
+dependencies:
+  - "Montage 6.0"
+  - "AstroPy 1.0"
