@@ -10,9 +10,9 @@ if [ ! -e montage-workflow.py ]; then
 fi
 rm -rf data
 
-singularity exec \
+apptainer exec \
             --bind $PWD \
-            library://rynge/default/montage:latest \
+            https://data.isi.edu/montage/images/montage-workflow-v3.sif \
             $PWD/montage-workflow.py \
                 --work-dir $PWD \
                 --tc-target container \
@@ -24,6 +24,6 @@ singularity exec \
 
 pegasus-plan \
         --dir work \
-        --dax data/montage-workflow.yml \
         --output-site local \
-        --cluster horizontal 
+        --cluster horizontal \
+        data/montage-workflow.yml

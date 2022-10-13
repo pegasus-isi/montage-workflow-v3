@@ -69,7 +69,7 @@ def build_transformation_catalog(tc_target, wf):
     if tc_target == 'container':
         container = Container('montage',
             Container.SINGULARITY,
-            'library://rynge/default/montage:latest'
+            'https://data.isi.edu/montage/images/montage-workflow-v3.sif'
             ).add_env(MONTAGE_HOME='/opt/Montage')
         tc.add_containers(container)
 

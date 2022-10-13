@@ -19,7 +19,7 @@ yum -y upgrade
 yum -y install epel-release yum-plugin-priorities
 
 # osg repo
-yum -y install http://repo.opensciencegrid.org/osg/3.5/osg-3.5-el7-release-latest.rpm
+yum -y install http://repo.opensciencegrid.org/osg/3.6/osg-3.6-el7-release-latest.rpm
 
 # pegasus repo
 echo -e "# Pegasus\n[Pegasus]\nname=Pegasus\nbaseurl=http://download.pegasus.isi.edu/wms/download/rhel/7/\$basearch/\ngpgcheck=0\nenabled=1\npriority=50" >/etc/yum.repos.d/pegasus.repo
@@ -45,9 +45,6 @@ yum -y install \
 
 # want astropy in the python3 install as that is what we use for Pegasus API
 pip3 install astropy
-
-# pegasus 5.0
-rpm -Uvh https://download.pegasus.isi.edu/pegasus/5.0.0dev/pegasus-5.0.0dev-1.el7.x86_64.rpm
 
 # Cleaning caches to reduce size of image
 yum clean all
