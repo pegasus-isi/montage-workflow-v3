@@ -250,9 +250,9 @@ def add_band(wf, rc, band_id, center, degrees, survey, band, color):
         # mDiffFit job
         j = Job('mDiffFit')
         plus = File('p' + row['plus'])
-        plus_area = File(re.sub('\.fits', '_area.fits', plus.lfn))
+        plus_area = File(re.sub(r'\.fits', '_area.fits', plus.lfn))
         minus = File('p' + row['minus'])
-        minus_area = File(re.sub('\.fits', '_area.fits', minus.lfn))
+        minus_area = File(re.sub(r'\.fits', '_area.fits', minus.lfn))
         fit_txt = File('%s-fit.%s.txt' %(band_id, base_name))
         diff_fits = File('%s-diff.%s.fits' %(band_id, base_name))
         j.add_inputs(plus, plus_area, minus, minus_area, common_files['region-oversized.hdr'])
@@ -284,7 +284,7 @@ def add_band(wf, rc, band_id, center, degrees, survey, band, color):
     # mBackground
     data = ascii.read('data/%s-raw.tbl' %(band_id))  
     for row in data:
-        base_name = re.sub('(diff\.|\.fits.*)', '', row['file'])
+        base_name = re.sub(r'(diff\.|\.fits.*)', '', row['file'])
 
         # mBackground job
         j = Job('mBackground')
@@ -306,7 +306,7 @@ def add_band(wf, rc, band_id, center, degrees, survey, band, color):
     j.add_args('.', '-t', corrected_tbl, updated_corrected_tbl)
     data = ascii.read('data/%s-corrected.tbl' %(band_id))  
     for row in data:
-        base_name = re.sub('(diff\.|\.fits.*)', '', row['file'])
+        base_name = re.sub(r'(diff\.|\.fits.*)', '', row['file'])
         projected_fits = File(base_name + '.fits')
         j.add_inputs(projected_fits)
     wf.add_jobs(j)
@@ -320,7 +320,7 @@ def add_band(wf, rc, band_id, center, degrees, survey, band, color):
     j.add_args('-e', updated_corrected_tbl, common_files['region.hdr'], mosaic_fits)
     data = ascii.read('data/%s-corrected.tbl' %(band_id))  
     for row in data:
-        base_name = re.sub('(diff\.|\.fits.*)', '', row['file'])
+        base_name = re.sub(r'(diff\.|\.fits.*)', '', row['file'])
         corrected_fits = File(base_name + '.fits')
         corrected_area = File(base_name + '_area.fits')
         j.add_inputs(corrected_fits, corrected_area)
