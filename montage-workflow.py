@@ -216,7 +216,7 @@ def add_band(wf, rc, band_id, center, degrees, survey, band, color):
     # make sure we have a wide enough column
     t['stat'] = '                                                                  '
     for row in t:
-        base_name = re.sub('(diff\.|\.fits.*)', '', row['diff'])
+        base_name = re.sub(r'(diff\.|\.fits.*)', '', row['diff'])
         row['stat'] = '%s-fit.%s.txt' %(band_id, base_name)
     ascii.write(t, 'data/%s-stat.tbl' %(band_id), format='ipac')
     rc.add_replica('local', '%s-stat.tbl' %(band_id), 'file://' + os.getcwd() + '/data/%s-stat.tbl' %(band_id))
@@ -226,7 +226,7 @@ def add_band(wf, rc, band_id, center, degrees, survey, band, color):
     data = ascii.read('data/%s-images.tbl' %(band_id))  
     for row in data:
         
-        base_name = re.sub('\.fits.*', '', row['file'])
+        base_name = re.sub(r'\.fits.*', '', row['file'])
 
         # add an entry to the replica catalog
         rc.add_replica('ipac', base_name + '.fits', row['URL'])
@@ -245,7 +245,7 @@ def add_band(wf, rc, band_id, center, degrees, survey, band, color):
     data = ascii.read('data/%s-diffs.tbl' %(band_id))
     for row in data:
         
-        base_name = re.sub('(diff\.|\.fits.*)', '', row['diff'])
+        base_name = re.sub(r'(diff\.|\.fits.*)', '', row['diff'])
 
         # mDiffFit job
         j = Job('mDiffFit')
