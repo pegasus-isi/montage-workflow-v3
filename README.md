@@ -1,25 +1,29 @@
 # montage-workflow-v3
 
-*NOTE: This is a Montage workflow version which requires Pegasus 5.0. For a version that works with
-Pegasus 4, please use `montage-workflow-v2`*
-
 A new Python DAX generator version of the classic Montage workflow. This workflow uses the [Montage
 toolkit](http://montage.ipac.caltech.edu) to re-project, background correct and add astronomical
 images into custom mosaics.
 
-## Prerequisites
+This version is now using Apptainer containers, and a head from the Montage repository (they have
+not had a release for a long time). The container is used both for generating the workflow, and
+during workflow execution.
 
- * [Pegasus](https://pegasus.isi.edu) - version 5.0 or later
- * [Montage](http://montage.ipac.caltech.edu) - version 6.0 or later
- * [AstroPy](http://www.astropy.org/) - version 1.0 or later
 
 ## Plan a Montage Workflow
 
 The _./montage-workflow.py_ Python script sets up a _data/_ directory with a Pegasus DAX,
 image tables and region headers. For example:
 
-    ./montage-workflow.py --center "56.7 24.0" --degrees 2.0 \
-              --band dss:DSS2B:blue --band dss:DSS2R:green --band dss:DSS2IR:red
+    apptainer exec \
+                --bind $PWD \
+                https://download.pegasus.isi.edu/containers/montage/montage-workflow-v3-20260810.sif \
+                $PWD/montage-workflow.py \
+                    --work-dir $PWD \
+                    --center "56.7 24.0"
+                    --degrees 2.0 \
+                    --band dss:DSS2B:blue \
+                    --band dss:DSS2R:green \
+                    --band dss:DSS2IR:red
 
 This will create a 2x2 degree mosaic centered on 56.7 24.0, with 3 bands making up the
 red, green, and blue channels for the final JPEG output. A 2 degree workflow has a lot
@@ -27,6 +31,7 @@ of input images and thus the workflow becomes wide. I simplified version of the 
 looks like:
 
 ![DAX 1](docs/images/dax1.png?raw=true "DAX 1")
+
 
 ## Examples
 

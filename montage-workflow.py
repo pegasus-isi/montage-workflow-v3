@@ -51,7 +51,7 @@ def repl_base_dir():
     pass
 
 
-def build_transformation_catalog(tc_target, wf):
+def build_transformation_catalog(wf):
     '''
     Some transformations in Montage uses multiple executables
     '''
@@ -65,32 +65,22 @@ def build_transformation_catalog(tc_target, wf):
         raise RuntimeError('mProject is not in the $PATH')
     base_dir = os.path.dirname(full_path)
    
-    container = None
-    if tc_target == 'container':
-        container = Container('montage',
-            Container.SINGULARITY,
-            'https://data.isi.edu/montage/images/montage-workflow-v3.sif'
-            ).add_env(MONTAGE_HOME='/opt/Montage')
-        tc.add_containers(container)
+    container = Container('montage',
+        Container.SINGULARITY,
+        'https://download.pegasus.isi.edu/containers/montage/montage-workflow-v3-20260810.sif'
+        ).add_env(MONTAGE_HOME='/opt/Montage')
+    tc.add_containers(container)
 
     for fname in os.listdir(base_dir):
         transformation = None
         if fname[0] == '.':
             continue
 
-        if tc_target == 'regular':
-            transformation = Transformation(fname, 
-                                            site='local',
-                                            pfn=os.path.join(base_dir, fname), 
-                                            is_stageable=True)
-            transformation.add_env(PATH='/usr/bin:/bin:.')
-        else:
-            # container
-            transformation = Transformation(fname,
-                                            site='insidecontainer',
-                                            pfn=os.path.join(base_dir, fname),
-                                            container=container,
-                                            is_stageable=False)
+        transformation = Transformation(fname,
+                                        site='insidecontainer',
+                                        pfn=os.path.join(base_dir, fname),
+                                        container=container,
+                                        is_stageable=False)
 
         # resource requirements
         transformation.add_pegasus_profiles(
@@ -99,8 +89,10 @@ def build_transformation_catalog(tc_target, wf):
                 diskspace = "4 GB")
 
         # some transformations can be clustered for effiency
-        if fname in ['gmProject', 'mDiff', 'mDiffFit', 'mBackground']:
-            transformation.add_profiles(Namespace.PEGASUS, 'clusters.size', '3')
+        if fname in ['mProject']:
+            transformation.add_profiles(Namespace.PEGASUS, 'clusters.size', '10')
+        if fname in ['mDiff', 'mDiffFit', 'mBackground']:
+            transformation.add_profiles(Namespace.PEGASUS, 'clusters.size', '20')
 
         # keep a handle to added ones, for use later
         trans[fname] = transformation
@@ -370,15 +362,10 @@ def main():
                         help = 'Number of degrees of side of the output')
     parser.add_argument('--band', action = 'append', dest = 'bands',
                         help = 'Band definition. Example: dss:DSS2B:red')
-    parser.add_argument('--tc-target', action = 'store', dest = 'tc_target',
-                        help = 'Transformation catalog: regular or container')
     args = parser.parse_args()
 
     if args.work_dir:
         os.chdir(args.work_dir)
-
-    if args.tc_target is None:
-        args.tc_target = 'regular'
 
     if os.path.exists('data'):
         print('data/ directory already exists')
@@ -387,18 +374,21 @@ def main():
 
     wf = Workflow('montage', infer_dependencies=True)
     rc = ReplicaCatalog()
+    props = Properties()
 
-    # FIXME
-    # email notificiations for when the state of the workflow changes
-    #share_dir = subprocess.Popen('pegasus-config --sh-dump | grep ^PEGASUS_SHARE_DIR= | sed -e 's/.*=//' -e 's/\'//g'',
-    #                             shell=True,
-    #                             stdout=subprocess.PIPE).communicate()[0]
-    #share_dir = share_dir.strip()
-    #wf.invoke('start', share_dir + '/notification/email')
-    #wf.invoke('on_error', share_dir + '/notification/email')
-    #wf.invoke('on_success', share_dir + '/notification/email --report=pegasus-statistics')
+    # disable checksumming - many Montage runs are
+    # performance centric
+    props["pegasus.integrity.checking"] = "none"
 
-    build_transformation_catalog(args.tc_target, wf)
+    # Shortcut: Add a profile directly to the default compute site
+    props.add_site_profile(
+        site="condorpool",
+        namespace="condor",
+        key="universe",
+        value="container"
+    )
+
+    build_transformation_catalog(wf)
 
     # region.hdr is the template for the ouput area
     generate_region_hdr(wf, rc, args.center, args.degrees)
@@ -418,6 +408,7 @@ def main():
     # write out the workflow and catalogs
     wf.add_replica_catalog(rc)
     wf.write('data/montage-workflow.yml')
+    props.write()
 
 
 if __name__ == '__main__':

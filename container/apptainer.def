@@ -1,0 +1,61 @@
+bootstrap:docker
+From:rockylinux:9
+
+%environment
+
+    PATH=/opt/Montage/bin:/usr/bin:/bin
+
+%setup
+
+    mkdir -p $SINGULARITY_ROOTFS/opt/montage-workflow-v3
+    cp -a * $SINGULARITY_ROOTFS/opt/montage-workflow-v3/
+    rm -rf $SINGULARITY_ROOTFS/opt/montage-workflow-v3/data
+    rm -rf $SINGULARITY_ROOTFS/opt/montage-workflow-v3/wf-*
+
+%post
+
+    dnf -y upgrade || true
+    dnf -y install yum-utils
+    dnf -y config-manager --set-enabled crb
+    dnf -y install epel-release
+
+    # osg repo
+    dnf -y install https://repo.osg-htc.org/osg/25-main/osg-25-main-el9-release-latest.rpm
+
+    # pegasus repo
+    echo -e "# Pegasus\n[Pegasus]\nname=Pegasus\nbaseurl=http://download.pegasus.isi.edu/pegasus/development/6.0/rhel/9/\$basearch/\ngpgcheck=0\nenabled=1\npriority=50" >/etc/yum.repos.d/pegasus.repo
+
+    dnf -y install \
+        file \
+        diffutils \
+        gcc \
+        gcc-gfortran \
+        git \
+        java-21-openjdk \
+        java-21-openjdk-devel \
+        libjpeg-turbo-devel \
+        libnsl \
+        make \
+        openjpeg2-devel \
+        patch \
+        pegasus \
+        python3.12-devel \
+        python3.12-pip \
+        unzip \
+        wget
+
+    # want astropy in the python3 install as that is what we use for Pegasus API
+    python3.12 -m pip install astropy
+
+    # Cleaning caches to reduce size of image
+    dnf clean all
+
+    # legacy nsl
+    ln -s /usr/lib64/libnsl.so.1 /usr/lib64/libnsl.so
+
+    cd /opt && \
+        git clone https://github.com/Caltech-IPAC/Montage.git && \
+        cd Montage && \
+        cat /opt/montage-workflow-v3/container/montage.patch | patch -p1 && \
+        make
+

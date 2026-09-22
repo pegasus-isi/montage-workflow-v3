@@ -1,0 +1,40 @@
+diff --git a/MontageLib/DiffFit/mDiffFit.c b/MontageLib/DiffFit/mDiffFit.c
+index 3c9b7df..72e009d 100644
+--- a/MontageLib/DiffFit/mDiffFit.c
++++ b/MontageLib/DiffFit/mDiffFit.c
+@@ -133,7 +133,13 @@ int main(int argc, char **argv)
+ 
+    returnStruct = mDiffFit(input_file1, input_file2, output_file, template_file, keep, levelOnly, noAreas, border, debug);
+ 
+-   if(returnStruct->status == 1)
++   if(returnStruct->status == 9)
++   {
++       /* special case for all pixels are blank - exit 0 */
++       fprintf(montage_status, "[struct stat=\"ERROR\", msg=\"%s\"]\n", returnStruct->msg);
++       exit(0);
++   }
++   else if(returnStruct->status == 1)
+    {
+        fprintf(montage_status, "[struct stat=\"ERROR\", msg=\"%s\"]\n", returnStruct->msg);
+        exit(1);
+diff --git a/MontageLib/DiffFit/montageDiffFit.c b/MontageLib/DiffFit/montageDiffFit.c
+index e6e05c2..8e6fdf9 100644
+--- a/MontageLib/DiffFit/montageDiffFit.c
++++ b/MontageLib/DiffFit/montageDiffFit.c
+@@ -100,7 +100,15 @@ struct mDiffFitReturn *mDiffFit(char *fname1, char *fname2, char *diffname, char
+ 
+    if(diff->status)
+    {
+-      strcpy(montage_msgstr, diff->msg);
++      strcpy(returnStruct->msg, diff->msg);
++
++      /* in workflows, some errors from mDiff are ignored, such as images not overlapping */
++      if (strcmp(diff->msg, "Images don't overlap") == 0
++          || strcmp(diff->msg, "All pixels are blank.") == 0) {
++          /* ensure the output file exists, even if it is 0 bytes */
++          fopen(diffname, "w+");
++          returnStruct->status = 9;
++      }
+       return returnStruct;
+    }
+ 
