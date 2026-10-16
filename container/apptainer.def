@@ -45,7 +45,10 @@ From:rockylinux:9
         wget
 
     # want astropy in the python3 install as that is what we use for Pegasus API
+    python3.12 -m venv /srv/venv
+    . /srv/venv/bin/activate
     python3.12 -m pip install astropy
+    python3.12 -m pip install https://download.pegasus.isi.edu/pegasus/6.0.0.dev0/pegasus_wms-6.0.0.dev0-py3-none-manylinux_2_24_x86_64.whl
 
     # Cleaning caches to reduce size of image
     dnf clean all
@@ -58,4 +61,8 @@ From:rockylinux:9
         cd Montage && \
         cat /opt/montage-workflow-v3/container/montage.patch | patch -p1 && \
         make
+
+%environment
+
+    . /srv/venv/bin/activate
 
