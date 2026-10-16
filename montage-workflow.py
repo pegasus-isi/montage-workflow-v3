@@ -382,7 +382,7 @@ def main():
 
     # Shortcut: Add a profile directly to the default compute site
     props.add_site_profile(
-        site="condorpool",
+        site="compute",
         namespace="condor",
         key="universe",
         value="container"
